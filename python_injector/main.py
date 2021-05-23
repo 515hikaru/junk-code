@@ -1,36 +1,32 @@
-from injector import Injector, InstanceProvider, inject
+from typing import Dict
+
+from injector import Injector, inject
+
+from .cache import DictCache, ICache
 
 
-class A:
+def cache_config(binder):
+    binder.multibind(Dict[str, str], to={})
+    binder.bind(ICache, DictCache)
+
+
+class FooCase:
+
     @inject
-    def __init__(self, number: int, name: str):
-        self.number = number
-        self.name = name
+    def __init__(self, cache: ICache):
+        self.cache = cache
 
-class B:
-    @inject
-    def __init__(self, a: A):
-        self.a = a
-
-    @inject
-    def b(self, keyword: str):
-        print(keyword, [self.a.name, self.a.number])
-
-def configure(binder):
-    binder.bind(A, to=InstanceProvider(A(10, 'hikaru')))
-    # binder.bind(int, 10)
-    # binder.bind(str, 'hikaru')
+    def execute(self):
+        v = self.cache.get('foo')
+        if v is None:
+            v = 'no cache'
+        print(v)
 
 
 def main():
-    injector = Injector()
-    b = injector.get(B)
-    print(b.a.number)
-    print(b.a.name)
-
-    configured_injector = Injector(configure)
-    configured_injector.call_with_injection(configured_injector.get(B).b)
-    configured_injector.call_with_injection(configured_injector.get(B).b, args=('foo',))
+    injector = Injector(cache_config)
+    foo = injector.get(FooCase)
+    foo.execute()
 
 
 if __name__ == '__main__':
