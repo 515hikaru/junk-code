@@ -17,9 +17,8 @@ class ICache(metaclass=ABCMeta):
 
 class DictCache(ICache):
 
-    @inject
-    def __init__(self, cache: Dict[str, str]):
-        self.content = cache
+    def __init__(self):
+        self.content = {'key': 'value'}
     
     def get(self, key: str) -> Any:
         return self.content.get(key, None)
