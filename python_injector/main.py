@@ -6,7 +6,6 @@ from .cache import DictCache, ICache
 
 
 def cache_config(binder):
-    binder.multibind(Dict[str, str], to={})
     binder.bind(ICache, DictCache)
 
 
